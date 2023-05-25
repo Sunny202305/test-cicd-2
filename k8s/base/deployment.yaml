@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: test-cicd-2
-  replicas: 
+  replicas: 2
   strategy:
     type: RollingUpdate
   template:
