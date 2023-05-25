@@ -1,0 +1,76 @@
+steps:
+# Build the container image
+- name: 'gcr.io/cloud-builders/docker'
+  args: 
+    - 'build'
+    - '-t'
+    - 'us-central1-docker.pkg.dev/test-cicd-2/test-cicd-2/test-cicd-2:$COMMIT_SHA'
+    - '-t'
+    - 'us-central1-docker.pkg.dev/test-cicd-2/test-cicd-2/test-cicd-2:latest'
+    - '.'
+
+# Note: We should avoid using the :latest tag when deploying containers in production as it is
+# harder to track which version of the image is running and more difficult to roll back properly.
+
+# Push container image
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'push', 'us-central1-docker.pkg.dev/test-cicd-2/test-cicd-2/test-cicd-2:$COMMIT_SHA' ]
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'push', 'us-central1-docker.pkg.dev/test-cicd-2/test-cicd-2/test-cicd-2:latest' ]
+
+# Deploy image to GKE
+# 1.Need to check if the deployment and service existed, if not create them.
+# 2.Double check of permission granted to CloudBuild service account for managing GKE Cluster. 
+#   in our case, grant Kubernetes Engine Admin permission to CloudBuild Service account. 
+# - name: gcr.io/cloud-builders/kubectl
+#   args:
+#     - set
+#     - image
+#     - deployment/test-cicd-2
+#     - test-cicd-2=us-central1-docker.pkg.dev/test-cicd-2/test-cicd-2/test-cicd-2:$COMMIT_SHA
+#   env:
+#     - CLOUDSDK_COMPUTE_ZONE=us-central1
+#     - CLOUDSDK_CONTAINER_CLUSTER=staging
+
+# Create release in Google Cloud Deploy
+# - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+#   entrypoint: gcloud
+#   args:
+#     [
+#       'deploy', 'releases', 'create', 'rel-${SHORT_SHA}',
+#       '--delivery-pipeline', 'test-cicd-2-pipeline',
+#       '--region', 'us-central1',
+#       '--annotations', 'commitId=${REVISION_ID}',
+#       '--images', 'test-cicd-2=us-central1-docker.pkg.dev/test-cicd-2/test-cicd-2/test-cicd-2:${COMMIT_SHA}'
+#     ]
+
+## Build
+# - name: gcr.io/k8s-skaffold/skaffold
+#   args:
+#     - skaffold
+#     - build
+#     - '--interactive=false'
+#     - '--file-output=/workspace/artifacts.json'
+# # Deploy Release
+# - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+#   entrypoint: gcloud
+#   args:
+#     [
+#       "deploy", "releases", "create", "rel-${SHORT_SHA}",
+#       "--delivery-pipeline", "test-cicd-2-pipeline",
+#       "--region", "us-central1",
+#       "--annotations", "commitId=${REVISION_ID}",
+#       "--build-artifacts", "/workspace/artifacts.json"
+#     ]
+
+# # Create release in Google Cloud Deploy(Auto Promote from Staging to Production)
+# - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+#   entrypoint: gcloud
+#   args:
+#     [
+#       'deploy', 'releases', 'promote',
+#       '--release', 'rel-${SHORT_SHA}',
+#       '--delivery-pipeline', 'test-cicd-2-pipeline',
+#       '--region', 'us-central1',
+#       '--to-target', 'multi-prods'
+#     ]

@@ -1,0 +1,37 @@
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: multi-prods
+description: test for multiple prod clusters
+requireApproval: true
+multiTarget:
+ targetIds: [ prod-us, prod-aus ]
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: staging
+description: testing development cluster
+gke:
+  cluster: projects/test-cicd-2/locations/us-central1/clusters/staging
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: prod-us
+description: testing production cluster
+gke:
+  cluster: projects/test-cicd-2/locations/us-central1/clusters/prod-us
+---
+
+# even a GKE in different location, target need to be created in the same location with delivery-pipeline
+# accoring to: https://cloud.google.com/deploy/docs/regions#:~:text=Google%20Cloud%20Deploy%20instances%20can,to%20deploy%20to%20multiple%20regions.
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: prod-aus
+description: testing production cluster
+gke:
+  cluster: projects/test-cicd-2/locations/us-east1/clusters/prod-aus

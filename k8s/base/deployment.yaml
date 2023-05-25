@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-cicd-2
+spec:
+  selector:
+    matchLabels:
+      app: test-cicd-2
+  replicas: 
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: test-cicd-2
+    spec:
+      containers:
+        - name: test-cicd-2
+          image: us-central1-docker.pkg.dev/test-cicd-2/test-cicd-2/test-cicd-2
+          ports:
+           - containerPort: 3000
+# <location>-docker.pkg.dev/project/repo/image

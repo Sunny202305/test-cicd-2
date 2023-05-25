@@ -1,0 +1,13 @@
+apiVersion: skaffold/v4beta2
+kind: Config
+metadata:
+  name: test-cicd-2
+build:
+  artifacts:
+    - image: us-central1-docker.pkg.dev/test-cicd-2/test-cicd-2/test-cicd-2
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  kustomize:
+    paths:
+      - .
