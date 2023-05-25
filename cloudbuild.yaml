@@ -44,33 +44,33 @@ steps:
 #       '--images', 'test-cicd-2=us-central1-docker.pkg.dev/test-cicd-2/test-cicd-2/test-cicd-2:${COMMIT_SHA}'
 #     ]
 
-## Build
-# - name: gcr.io/k8s-skaffold/skaffold
-#   args:
-#     - skaffold
-#     - build
-#     - '--interactive=false'
-#     - '--file-output=/workspace/artifacts.json'
-# # Deploy Release
-# - name: gcr.io/google.com/cloudsdktool/cloud-sdk
-#   entrypoint: gcloud
-#   args:
-#     [
-#       "deploy", "releases", "create", "rel-${SHORT_SHA}",
-#       "--delivery-pipeline", "test-cicd-2-pipeline",
-#       "--region", "us-central1",
-#       "--annotations", "commitId=${REVISION_ID}",
-#       "--build-artifacts", "/workspace/artifacts.json"
-#     ]
+# Build
+- name: gcr.io/k8s-skaffold/skaffold
+  args:
+    - skaffold
+    - build
+    - '--interactive=false'
+    - '--file-output=/workspace/artifacts.json'
+# Deploy Release
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  entrypoint: gcloud
+  args:
+    [
+      "deploy", "releases", "create", "rel-${SHORT_SHA}",
+      "--delivery-pipeline", "test-cicd-2-pipeline",
+      "--region", "us-central1",
+      "--annotations", "commitId=${REVISION_ID}",
+      "--build-artifacts", "/workspace/artifacts.json"
+    ]
 
-# # Create release in Google Cloud Deploy(Auto Promote from Staging to Production)
-# - name: gcr.io/google.com/cloudsdktool/cloud-sdk
-#   entrypoint: gcloud
-#   args:
-#     [
-#       'deploy', 'releases', 'promote',
-#       '--release', 'rel-${SHORT_SHA}',
-#       '--delivery-pipeline', 'test-cicd-2-pipeline',
-#       '--region', 'us-central1',
-#       '--to-target', 'multi-prods'
-#     ]
+# Create release in Google Cloud Deploy(Auto Promote from Staging to Production)
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  entrypoint: gcloud
+  args:
+    [
+      'deploy', 'releases', 'promote',
+      '--release', 'rel-${SHORT_SHA}',
+      '--delivery-pipeline', 'test-cicd-2-pipeline',
+      '--region', 'us-central1',
+      '--to-target', 'multi-prods'
+    ]
